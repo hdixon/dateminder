@@ -5,11 +5,15 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from datetime import date, timedelta
 from typing import List, Dict, Optional
+from a2wsgi import ASGIMiddleware
 import os
 
 from database import SessionLocal, Employee
 
 app = FastAPI()
+
+# WSGI adapter for PythonAnywhere
+wsgi_app = ASGIMiddleware(app)
 
 # Create static and templates directories if they don't exist
 os.makedirs("static", exist_ok=True)
