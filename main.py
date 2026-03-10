@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from datetime import date, timedelta
 from typing import List, Dict, Optional
-from a2wsgi import ASGIMiddleware
+# from a2wsgi import ASGIMiddleware
 import os
 
 from database import SessionLocal, Employee
@@ -13,18 +13,19 @@ from database import SessionLocal, Employee
 app = FastAPI()
 
 # WSGI adapter for PythonAnywhere
-wsgi_app = ASGIMiddleware(app)
+# wsgi_app = ASGIMiddleware(app)
 
 # Create static and templates directories if they don't exist
-os.makedirs("static", exist_ok=True)
-os.makedirs("templates", exist_ok=True)
+# os.makedirs("static", exist_ok=True)
+# os.makedirs("templates", exist_ok=True)
 
 # Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+
+app.mount("/static", StaticFiles(directory="/home/hdixon/dateminder/static"), name="static")
+templates = Jinja2Templates(directory="/home/hdixon/dateminder/templates")
 
 # Dependency for database session
-def get_db():
+async def get_db():
     db = SessionLocal()
     try:
         yield db
@@ -34,34 +35,35 @@ def get_db():
 def get_next_occurrence(event_date_str: str) -> date:
     event_date = date.fromisoformat(event_date_str)
     today = date.today()
-    
+
     # Set the year to current year
     next_date = date(today.year, event_date.month, event_date.day)
-    
+
     # If the date has already passed this year, set it to next year
     if next_date < today:
         next_date = date(today.year + 1, event_date.month, event_date.day)
-        
+
     return next_date
 
 @app.get("/", response_class=HTMLResponse)
+# def read_root(request: Request, db: Session = Depends(get_db)):
 async def read_root(request: Request, db: Session = Depends(get_db)):
     today = date.today()
     db_employees = db.query(Employee).all()
-    
+
     processed_employees = []
     upcoming_notifications = []
-    
+
     for emp in db_employees:
         bday_next = get_next_occurrence(emp.birthday)
         join_next = get_next_occurrence(emp.join_date)
-        
+
         bday_days = (bday_next - today).days
         join_days = (join_next - today).days
-        
+
         orig_join = date.fromisoformat(emp.join_date)
         years = join_next.year - orig_join.year
-        
+
         emp_data = {
             "id": emp.id,
             "name": emp.name,
@@ -73,9 +75,9 @@ async def read_root(request: Request, db: Session = Depends(get_db)):
             "join_days": join_days,
             "anniversary_years": years
         }
-        
+
         processed_employees.append(emp_data)
-        
+
         # Check for 7-day notification
         if bday_days == 7:
             upcoming_notifications.append({
@@ -84,7 +86,7 @@ async def read_root(request: Request, db: Session = Depends(get_db)):
                 "date": bday_next,
                 "message": f"Send birthday card to {emp.name}!"
             })
-        
+
         if join_days == 7:
             upcoming_notifications.append({
                 "name": emp.name,
@@ -101,15 +103,17 @@ async def read_root(request: Request, db: Session = Depends(get_db)):
     })
 
 @app.get("/edit/{employee_id}", response_class=HTMLResponse)
+# def edit_employee_form(request: Request, employee_id: int, db: Session = Depends(get_db)):
 async def edit_employee_form(request: Request, employee_id: int, db: Session = Depends(get_db)):
     employee = db.query(Employee).filter(Employee.id == employee_id).first()
     return templates.TemplateResponse("edit.html", {"request": request, "employee": employee})
 
 @app.post("/edit/{employee_id}")
+# def edit_employee(
 async def edit_employee(
-    employee_id: int, 
-    name: str = Form(...), 
-    birthday: str = Form(...), 
+    employee_id: int,
+    name: str = Form(...),
+    birthday: str = Form(...),
     join_date: str = Form(...),
     db: Session = Depends(get_db)
 ):
@@ -121,13 +125,15 @@ async def edit_employee(
     return RedirectResponse(url="/", status_code=303)
 
 @app.get("/add", response_class=HTMLResponse)
+# def add_employee_form(request: Request):
 async def add_employee_form(request: Request):
     return templates.TemplateResponse("add.html", {"request": request})
 
 @app.post("/add")
+# def add_employee(
 async def add_employee(
-    name: str = Form(...), 
-    birthday: str = Form(...), 
+    name: str = Form(...),
+    birthday: str = Form(...),
     join_date: str = Form(...),
     db: Session = Depends(get_db)
 ):
@@ -137,6 +143,7 @@ async def add_employee(
     return RedirectResponse(url="/", status_code=303)
 
 @app.post("/delete/{employee_id}")
+# def delete_employee(employee_id: int, db: Session = Depends(get_db)):
 async def delete_employee(employee_id: int, db: Session = Depends(get_db)):
     employee = db.query(Employee).filter(Employee.id == employee_id).first()
     if employee:

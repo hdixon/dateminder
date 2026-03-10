@@ -3,7 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import date
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./employees.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:////home/hdixon/dateminder/employees.db"
+
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
