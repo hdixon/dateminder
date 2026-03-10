@@ -2,8 +2,15 @@ from sqlalchemy import create_engine, Column, Integer, String, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import date
+import platform
 
-SQLALCHEMY_DATABASE_URL = "sqlite:////home/hdixon/dateminder/employees.db"
+# Determine database path based on OS
+if platform.system() == "Darwin":
+    # Local development on macOS
+    SQLALCHEMY_DATABASE_URL = "sqlite:///./employees.db"
+else:
+    # Production on VPS
+    SQLALCHEMY_DATABASE_URL = "sqlite:////home/hdixon/dateminder/employees.db"
 
 
 engine = create_engine(

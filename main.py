@@ -6,23 +6,26 @@ from sqlalchemy.orm import Session
 from datetime import date, timedelta
 from typing import List, Dict, Optional
 # from a2wsgi import ASGIMiddleware
+import platform
 import os
 
 from database import SessionLocal, Employee
 
 app = FastAPI()
 
-# WSGI adapter for PythonAnywhere
-# wsgi_app = ASGIMiddleware(app)
-
-# Create static and templates directories if they don't exist
-# os.makedirs("static", exist_ok=True)
-# os.makedirs("templates", exist_ok=True)
+# Determine paths based on OS
+if platform.system() == "Darwin":
+    # Local development on macOS
+    static_dir = "static"
+    templates_dir = "templates"
+else:
+    # Production on VPS
+    static_dir = "/home/hdixon/dateminder/static"
+    templates_dir = "/home/hdixon/dateminder/templates"
 
 # Mount static files
-
-app.mount("/static", StaticFiles(directory="/home/hdixon/dateminder/static"), name="static")
-templates = Jinja2Templates(directory="/home/hdixon/dateminder/templates")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+templates = Jinja2Templates(directory=templates_dir)
 
 # Dependency for database session
 async def get_db():
