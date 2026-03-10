@@ -82,7 +82,7 @@ async def read_root(request: Request, db: Session = Depends(get_db)):
         processed_employees.append(emp_data)
 
         # Check for 7-day notification
-        if bday_days == 7:
+        if bday_days <= 7:
             upcoming_notifications.append({
                 "name": emp.name,
                 "event": "Birthday",
@@ -90,7 +90,7 @@ async def read_root(request: Request, db: Session = Depends(get_db)):
                 "message": f"Send birthday card to {emp.name}!"
             })
 
-        if join_days == 7:
+        if join_days <= 7:
             upcoming_notifications.append({
                 "name": emp.name,
                 "event": f"{years} Year Anniversary",
