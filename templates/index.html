@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DateMinder - Employee Key Dates</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DateMinder</h1>
+            <span class="date-badge">Today: {{ today.strftime('%B %d, %Y') }}</span>
+        </header>
+
+        <section class="notifications-container">
+            <h2>Notifications for Next Week</h2>
+            {% if notifications %}
+                {% for note in notifications %}
+                <div class="notification-card">
+                    <span class="notification-icon">✉️</span>
+                    <div class="notification-content">
+                        <h3>{{ note.event }} coming up for {{ note.name }}</h3>
+                        <p>{{ note.message }} (Date: {{ note.date.strftime('%B %d') }})</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    No cards need to be sent out this week.
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="employee-list">
+            <div class="section-header">
+                <h2>Employee Key Dates</h2>
+                <a href="/add" class="btn btn-primary">+ Add Employee</a>
+            </div>
+            <div class="employee-grid">
+                {% for emp in employees %}
+                <div class="employee-card">
+                    <div class="employee-name">{{ emp.name }}</div>
+                    
+                    <div class="event-row">
+                        <span class="event-label">🎂 Birthday</span>
+                        <div class="event-details">
+                            <span class="event-date">{{ emp.bday_next.strftime('%b %d') }}</span>
+                            <span class="countdown {% if emp.bday_days <= 14 %}soon{% else %}upcoming{% endif %}">
+                                in {{ emp.bday_days }} days
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="event-row">
+                        <span class="event-label">🏢 Work Anniversary ({{ emp.anniversary_years }} yr)</span>
+                        <div class="event-details">
+                            <span class="event-date">{{ emp.join_next.strftime('%b %d') }}</span>
+                            <span class="countdown {% if emp.join_days <= 14 %}soon{% else %}upcoming{% endif %}">
+                                in {{ emp.join_days }} days
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <a href="/edit/{{ emp.id }}" class="edit-link">Edit Dates</a>
+                        <form action="/delete/{{ emp.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this employee?');">
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</body>
+</html>
