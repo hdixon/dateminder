@@ -13,32 +13,34 @@
     <div class="container">
         <header>
             <h1>DateMinder</h1>
-            <span class="date-badge">Today: {{ today.strftime('%B %d, %Y') }}</span>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="date-badge">Today: {{ today.strftime('%b %d, %Y') }}</span>
+                <a href="/add" class="btn btn-primary">+ Add</a>
+            </div>
         </header>
 
         <section class="notifications-container">
-            <h2>Notifications for Next Week</h2>
+            <h2>Notifications</h2>
             {% if notifications %}
                 {% for note in notifications %}
                 <div class="notification-card">
                     <span class="notification-icon">✉️</span>
                     <div class="notification-content">
-                        <h3>{{ note.event }} coming up for {{ note.name }}</h3>
-                        <p>{{ note.message }} (Date: {{ note.date.strftime('%B %d') }})</p>
+                        <h3>{{ note.event }}: {{ note.name }}</h3>
+                        <p>{{ note.message }} ({{ note.date.strftime('%b %d') }})</p>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
                 <div class="empty-state">
-                    No cards need to be sent out this week.
+                    No notifications.
                 </div>
             {% endif %}
         </section>
 
         <section class="employee-list">
             <div class="section-header">
-                <h2>Employee Key Dates</h2>
-                <a href="/add" class="btn btn-primary">+ Add Employee</a>
+                <h2>Employee Directory</h2>
             </div>
             <div class="employee-grid">
                 {% for emp in employees %}
